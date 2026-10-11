@@ -1,0 +1,12 @@
+{
+  "name": "Fútbol 2D — Partido rápido",
+  "short_name": "Fútbol 2D",
+  "description": "Juego arcade de fútbol para móvil, instalable y disponible sin conexión.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#071522",
+  "theme_color": "#071522",
+  "icons": [{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
