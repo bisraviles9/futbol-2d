@@ -1,6 +1,6 @@
 {
-  "name": "Fútbol 2D — Partido rápido",
-  "short_name": "Fútbol 2D",
+  "name": "Fútbol Arena — Partido rápido",
+  "short_name": "Fútbol Arena",
   "description": "Juego arcade de fútbol para móvil, instalable y disponible sin conexión.",
   "start_url": "./index.html",
   "scope": "./",
