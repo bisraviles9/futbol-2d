@@ -71,7 +71,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <section id="menu" class="screen active">
   <div class="stadium"></div><div class="lights"><span>✦　✦　✦　✦</span><span>✦　✦　✦　✦</span></div>
   <main class="menu-content">
-    <div><div class="logo">FÚTBOL <span>2D</span></div><div class="tagline">Partido rápido · fútbol arcade</div></div>
+    <div><div class="logo">FÚTBOL <span>2D</span></div><div class="tagline">Fútbol arcade 3D · vista de estadio</div></div>
     <div class="cards">
       <article class="card"><header class="card-head"><span>🛡️</span> CLUB</header><div class="card-art"><span class="footballer">⚽️</span></div><div class="card-desc">Clubes y ligas</div><button class="play" onclick="startMatch('club')">▶ JUGAR</button></article>
       <article class="card"><header class="card-head"><span>🏆</span> NACIONAL</header><div class="card-art"><span class="footballer">🌎</span></div><div class="card-desc">Selecciones nacionales</div><button class="play" onclick="startMatch('nacional')">▶ JUGAR</button></article>
@@ -82,7 +82,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 </section>
 <section id="match" class="screen">
  <header class="match-top"><div id="leftName" class="team-label">AZUL FC</div><div class="score"><span id="leftScore">0</span> — <span id="rightScore">0</span></div><div id="rightName" class="team-label" style="text-align:right">ROJO FC</div><div id="clock" class="clock">02:00</div><button class="iconbtn" onclick="togglePause()" aria-label="Pausa">Ⅱ</button></header>
- <div class="field-wrap"><canvas id="pitch" width="960" height="540"></canvas><div class="tip">Joystick: moverte · SELEC.: cambiar · PRESS: chutar o presionar</div><div id="rotateHint">↻ Gira el teléfono para ver mejor</div>
+ <div class="field-wrap"><canvas id="pitch" width="960" height="540"></canvas><div class="tip">Joystick: moverte · SELEC.: cambiar · PRESS: chutar</div><div id="rotateHint">↻ Gira el teléfono para ver mejor</div>
   <div class="controls"><div id="joyBase"><div id="joyKnob"></div></div><div class="actions"><button class="action select" id="selectBtn">SELEC.</button><button class="action slide" id="slideBtn">BARRER</button><button class="action tackle" id="tackleBtn">ROBAR</button><button class="action press" id="pressBtn">PRESS</button></div></div>
   <div id="endOverlay"><div class="end-card"><h2 id="endTitle">FINAL</h2><p id="finalScore">0 — 0</p><div class="end-actions"><button class="secondary" onclick="backToMenu()">MENÚ</button><button onclick="replay()">REVANCHA</button></div></div></div>
  </div>
@@ -136,17 +136,49 @@ function finish(){running=false;paused=false;$('endTitle').textContent=blueGoals
 window.togglePause=()=>{if(!running)return;paused=!paused;const bs=$('endOverlay').querySelectorAll('button');if(paused){$('endTitle').textContent='PAUSA';$('finalScore').textContent=blueGoals+' — '+redGoals;bs[0].textContent='CONTINUAR';bs[0].onclick=()=>togglePause();bs[1].textContent='MENÚ';bs[1].onclick=()=>backToMenu();$('endOverlay').classList.add('show');}else{$('endOverlay').classList.remove('show');bs[0].textContent='MENÚ';bs[0].onclick=()=>backToMenu();bs[1].textContent='REVANCHA';bs[1].onclick=()=>replay();}};
 window.backToMenu=()=>{running=false;$('endOverlay').classList.remove('show');$('match').classList.remove('active');$('menu').classList.add('active');try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}};
 window.replay=()=>startMatch(mode);
-function draw(){let c=ctx;c.clearRect(0,0,W,H);c.fillStyle='#16763b';c.fillRect(0,0,W,H);
- for(let i=0;i<10;i++){c.fillStyle=i%2?'#1d7d40':'#218447';c.fillRect(field.l+(field.r-field.l)*i/10,field.t,(field.r-field.l)/10,field.b-field.t);}
- c.strokeStyle='#f4fff1';c.lineWidth=3;c.strokeRect(field.l,field.t,field.r-field.l,field.b-field.t);c.beginPath();c.moveTo(480,field.t);c.lineTo(480,field.b);c.stroke();c.beginPath();c.arc(480,270,75,0,Math.PI*2);c.stroke();c.fillStyle='white';c.beginPath();c.arc(480,270,3,0,7);c.fill();
- c.strokeRect(field.l,145,140,250);c.strokeRect(field.r-140,145,140,250);c.strokeRect(5,goalTop,field.l-5,goalBottom-goalTop);c.strokeRect(field.r,goalTop,field.r+30-field.r,goalBottom-goalTop);
- // shadows, players and number labels
- players.forEach((p,i)=>{c.fillStyle='#0006';c.beginPath();c.ellipse(p.x+2,p.y+7,p.r,p.r*.55,0,0,Math.PI*2);c.fill();c.fillStyle=p.color;c.beginPath();c.arc(p.x,p.y,p.r,0,Math.PI*2);c.fill();c.strokeStyle=i===controlled?'#ffec74':'#ffffff';c.lineWidth=i===controlled?4:2;c.stroke();c.fillStyle='white';c.font='bold 12px system-ui';c.textAlign='center';c.textBaseline='middle';c.fillText(p.n,p.x,p.y);if(i===controlled){c.fillStyle='#ffed70';c.font='bold 16px system-ui';c.fillText('▼',p.x,p.y-26);}});
- c.fillStyle='#0005';c.beginPath();c.ellipse(ball.x+2,ball.y+6,ball.r+2,ball.r*.55,0,0,7);c.fill();c.fillStyle='#fff';c.beginPath();c.arc(ball.x,ball.y,ball.r,0,Math.PI*2);c.fill();c.strokeStyle='#222';c.lineWidth=2;c.stroke();c.fillStyle='#222';c.beginPath();c.arc(ball.x,ball.y,3,0,7);c.fill();
- // Radar de posiciones inspirado en los minimapas de fútbol para móvil.
- const mx=400,my=420,mw=160,mh=74;c.fillStyle='#06131dcc';c.fillRect(mx,my,mw,mh);c.strokeStyle='#ffffffb0';c.lineWidth=1.5;c.strokeRect(mx,my,mw,mh);c.beginPath();c.moveTo(mx+mw/2,my);c.lineTo(mx+mw/2,my+mh);c.stroke();c.beginPath();c.arc(mx+mw/2,my+mh/2,12,0,Math.PI*2);c.stroke();
- players.forEach((p,i)=>{c.fillStyle=p.team?'#ff5252':'#39c7ff';c.beginPath();c.arc(mx+(p.x-field.l)/(field.r-field.l)*mw,my+(p.y-field.t)/(field.b-field.t)*mh,i===controlled?3.5:2.7,0,Math.PI*2);c.fill();});c.fillStyle='#fff';c.beginPath();c.arc(mx+(ball.x-field.l)/(field.r-field.l)*mw,my+(ball.y-field.t)/(field.b-field.t)*mh,2,0,Math.PI*2);c.fill();
- if(paused&&running){c.fillStyle='#06121dbb';c.fillRect(0,0,W,H);c.fillStyle='white';c.font='bold 30px system-ui';c.textAlign='center';c.fillText('PAUSA',W/2,H/2);}}
+function draw(){
+ let c=ctx;c.clearRect(0,0,W,H);
+ const project=(x,y)=>{let t=clamp((y-field.t)/(field.b-field.t),0,1),s=.66+.34*t;return{x:480+(x-480)*s,y:70+t*405,s:.70+.36*t,t};};
+ const poly=(pts,fill,stroke=null,width=1)=>{c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.lineWidth=width;c.stroke();}};
+ const line=(a,b,color='#ffffff',width=2)=>{c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.strokeStyle=color;c.lineWidth=width;c.stroke();};
+ // Stadium bowl, night lights and soft crowd texture.
+ let sky=c.createLinearGradient(0,0,0,190);sky.addColorStop(0,'#06111f');sky.addColorStop(.58,'#17384a');sky.addColorStop(1,'#274c4a');c.fillStyle=sky;c.fillRect(0,0,W,H);
+ c.fillStyle='#182b38';c.beginPath();c.moveTo(0,8);c.lineTo(W,8);c.lineTo(870,75);c.lineTo(90,75);c.closePath();c.fill();
+ for(let row=0;row<5;row++){let yy=13+row*10;c.fillStyle=row%2?'#293c47':'#1c303b';c.fillRect(0,yy,W,8);for(let i=0;i<34;i++){let xx=8+i*29+(row%2)*12;c.fillStyle=['#e5ddba','#a5bdc3','#d3a77b','#93adb2'][((i*7+row*3)%4)];c.globalAlpha=.38+(i%3)*.1;c.beginPath();c.arc(xx,yy+3+(i%2),1.5,0,Math.PI*2);c.fill();}}c.globalAlpha=1;
+ for(let side of [0,1]){let lx=side?900:60;c.fillStyle='#e7f0ff';c.shadowColor='#d8ecff';c.shadowBlur=18;c.beginPath();c.ellipse(lx,29,32,5,0,0,Math.PI*2);c.fill();c.shadowBlur=0;}
+ const tl=project(field.l,field.t),tr=project(field.r,field.t),br=project(field.r,field.b),bl=project(field.l,field.b);
+ let turf=c.createLinearGradient(0,tl.y,0,bl.y);turf.addColorStop(0,'#28784a');turf.addColorStop(.55,'#28864c');turf.addColorStop(1,'#17643b');poly([tl,tr,br,bl],turf,'#d5f0d5',3);
+ for(let i=0;i<10;i++){let x1=field.l+(field.r-field.l)*i/10,x2=field.l+(field.r-field.l)*(i+1)/10;let a=project(x1,field.t),b=project(x2,field.t),d=project(x2,field.b),e=project(x1,field.b);poly([a,b,d,e],i%2?'rgba(9,60,35,.12)':'rgba(180,255,190,.035)');}
+ c.strokeStyle='#f0fff0';c.lineWidth=2.2;
+ line(project(field.l,field.t),project(field.r,field.t));line(project(field.r,field.t),project(field.r,field.b));line(project(field.r,field.b),project(field.l,field.b));line(project(field.l,field.b),project(field.l,field.t));
+ line(project(480,field.t),project(480,field.b));
+ let center=project(480,270);c.beginPath();c.ellipse(center.x,center.y,75*center.s,63*center.s,0,0,Math.PI*2);c.stroke();c.fillStyle='white';c.beginPath();c.arc(center.x,center.y,2.6,0,Math.PI*2);c.fill();
+ // Penalty areas follow the perspective of the pitch.
+ for(let side of [0,1]){let x1=side?field.r-140:field.l,x2=side?field.r:field.l+140;poly([project(x1,145),project(x2,145),project(x2,395),project(x1,395)],null,'#f0fff0',2);let sx=side?field.r-55:field.l+55;c.beginPath();let q=project(sx,270);c.arc(q.x,q.y,2.2,0,Math.PI*2);c.fill();}
+ // Goals and netting, behind the players.
+ for(let side of [0,1]){let gx=side?field.r:field.l,dir=side?1:-1,top=project(gx,goalTop),bottom=project(gx,goalBottom),back1=project(gx+dir*28,goalTop+7),back2=project(gx+dir*28,goalBottom-7);poly([top,bottom,back2,back1],'rgba(225,240,248,.08)','#f5ffff',2);for(let k=1;k<5;k++){let u=k/5;line({x:top.x+(back1.x-top.x)*u,y:top.y+(back1.y-top.y)*u},{x:bottom.x+(back2.x-bottom.x)*u,y:bottom.y+(back2.y-bottom.y)*u},'rgba(255,255,255,.35)',1);}for(let k=1;k<4;k++){let u=k/4;line({x:top.x+(bottom.x-top.x)*u,y:top.y+(bottom.y-top.y)*u},{x:back1.x+(back2.x-back1.x)*u,y:back1.y+(back2.y-back1.y)*u},'rgba(255,255,255,.3)',1);}}
+ // Players: shaded shirts, shorts, limbs and a soft ground shadow.
+ const ordered=players.map((p,i)=>({p,i,g:project(p.x,p.y)})).sort((a,b)=>a.g.y-b.g.y);
+ for(const {p,i,g} of ordered){let s=g.s,selected=i===controlled,py=g.y,px=g.x,h=27*s;
+  if(selected){c.strokeStyle='rgba(255,230,100,.95)';c.lineWidth=2.5;c.beginPath();c.ellipse(px,py+2,15*s,7*s,0,0,Math.PI*2);c.stroke();}
+  c.fillStyle='rgba(0,0,0,.36)';c.beginPath();c.ellipse(px+2,py+2,13*s,5.5*s,0,0,Math.PI*2);c.fill();
+  // legs and boots
+  c.lineCap='round';c.strokeStyle='#17212b';c.lineWidth=4*s;c.beginPath();c.moveTo(px-4*s,py-h*.33);c.lineTo(px-5*s,py-2*s);c.moveTo(px+4*s,py-h*.33);c.lineTo(px+5*s,py-2*s);c.stroke();
+  c.strokeStyle='#101820';c.lineWidth=3*s;c.beginPath();c.moveTo(px-5*s,py-2*s);c.lineTo(px-8*s,py);c.moveTo(px+5*s,py-2*s);c.lineTo(px+8*s,py);c.stroke();
+  let shirt=c.createLinearGradient(px-9*s,0,px+9*s,0);shirt.addColorStop(0,p.team?'#a92130':'#0870bd');shirt.addColorStop(.48,p.color);shirt.addColorStop(1,p.team?'#ff6a68':'#5dcaff');
+  poly([{x:px-8*s,y:py-h*.76},{x:px+7*s,y:py-h*.76},{x:px+9*s,y:py-h*.32},{x:px+6*s,y:py-h*.25},{x:px-7*s,y:py-h*.25},{x:px-10*s,y:py-h*.34}],shirt,'rgba(255,255,255,.48)',1);
+  c.strokeStyle=p.team?'#ef6262':'#57bdf5';c.lineWidth=4*s;c.beginPath();c.moveTo(px-8*s,py-h*.67);c.lineTo(px-12*s,py-h*.35);c.moveTo(px+7*s,py-h*.67);c.lineTo(px+11*s,py-h*.35);c.stroke();
+  c.fillStyle=p.team?'#b82835':'#124d89';c.fillRect(px-6*s,py-h*.28,12*s,6*s);
+  c.fillStyle='#f1c5a1';c.beginPath();c.arc(px,py-h*.91,5.2*s,0,Math.PI*2);c.fill();c.fillStyle='#35251f';c.beginPath();c.arc(px,py-h*.95,5*s,Math.PI,Math.PI*2);c.fill();
+  c.fillStyle='#fff';c.font=`900 ${Math.max(7,8*s)}px system-ui`;c.textAlign='center';c.textBaseline='middle';c.fillText(p.n,px,py-h*.51);
+  if(selected){c.fillStyle='#ffe76b';c.font=`bold ${12*s}px system-ui`;c.fillText('▼',px,py-h-7*s);}
+ }
+ // Ball rendered as a small shaded 3D sphere.
+ let bp=project(ball.x,ball.y),r=ball.r*bp.s*1.2;c.fillStyle='rgba(0,0,0,.4)';c.beginPath();c.ellipse(bp.x+2,bp.y+4,r*1.25,r*.55,0,0,Math.PI*2);c.fill();let bg=c.createRadialGradient(bp.x-r*.38,bp.y-r*.45,1,bp.x,bp.y,r);bg.addColorStop(0,'#fff');bg.addColorStop(.65,'#e9edf0');bg.addColorStop(1,'#9da7ad');c.fillStyle=bg;c.beginPath();c.arc(bp.x,bp.y,r,0,Math.PI*2);c.fill();c.strokeStyle='#202a31';c.lineWidth=1.4;c.stroke();c.fillStyle='#202a31';c.beginPath();for(let j=0;j<5;j++){let a=-Math.PI/2+j*2*Math.PI/5,x=bp.x+Math.cos(a)*r*.38,y=bp.y+Math.sin(a)*r*.38;j?c.lineTo(x,y):c.moveTo(x,y);}c.closePath();c.fill();
+ // Compact tactical radar kept readable on narrow phones.
+ const mx=398,my=426,mw=164,mh=72;c.fillStyle='#06131dcc';c.fillRect(mx,my,mw,mh);c.strokeStyle='#ffffffb0';c.lineWidth=1.4;c.strokeRect(mx,my,mw,mh);c.beginPath();c.moveTo(mx+mw/2,my);c.lineTo(mx+mw/2,my+mh);c.stroke();c.beginPath();c.arc(mx+mw/2,my+mh/2,11,0,Math.PI*2);c.stroke();players.forEach((p,i)=>{c.fillStyle=p.team?'#ff5252':'#39c7ff';let q=project(p.x,p.y);c.beginPath();c.arc(mx+(p.x-field.l)/(field.r-field.l)*mw,my+(p.y-field.t)/(field.b-field.t)*mh,i===controlled?3.6:2.8,0,Math.PI*2);c.fill();});c.fillStyle='#fff';c.beginPath();c.arc(mx+(ball.x-field.l)/(field.r-field.l)*mw,my+(ball.y-field.t)/(field.b-field.t)*mh,2.2,0,Math.PI*2);c.fill();
+ if(paused&&running){c.fillStyle='#06121dbb';c.fillRect(0,0,W,H);c.fillStyle='white';c.font='bold 30px system-ui';c.textAlign='center';c.fillText('PAUSA',W/2,H/2);}
+}
 function loop(now){if(!running)return;let dt=Math.min(.04,(now-last)/1000);last=now;update(dt);draw();if(running)raf=requestAnimationFrame(loop);}
 const joy=$('joyBase'),knob=$('joyKnob');function joyMove(e){let r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=r.width*.32,l=Math.hypot(dx,dy);if(l>max){dx*=max/l;dy*=max/l;}move={x:dx/max,y:dy/max};knob.style.transform=`translate(${dx}px,${dy}px)`;}
 joy.addEventListener('pointerdown',e=>{e.preventDefault();joyActive=true;joy.setPointerCapture(e.pointerId);joyMove(e);});joy.addEventListener('pointermove',e=>{if(joyActive)joyMove(e);});function joyStop(){joyActive=false;move={x:0,y:0};knob.style.transform='translate(0,0)';}joy.addEventListener('pointerup',joyStop);joy.addEventListener('pointercancel',joyStop);
